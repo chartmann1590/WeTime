@@ -23,13 +23,64 @@ Welcome to the WeTime documentation. This directory contains comprehensive guide
 
 The application includes several key pages and features:
 
-- **Login Page**: User authentication interface
-- **Signup Page**: New user registration
-- **Main Calendar**: Multiple view options (Agenda, Day, Week, Month)
-- **Calendar Management**: Create, import, and manage calendars
-- **Settings**: User profile and application settings
+### Authentication
 
-See the [Frontend Documentation](./FRONTEND.md) for detailed screenshots of each page.
+**Login Page**:
+![Login Page](./screenshots/screenshot-login.png)
+
+**Signup Page**:
+![Signup Page](./screenshots/screenshot-signup.png)
+
+### Calendar Views
+
+**Agenda View** (default on mobile):
+![Agenda View](./screenshots/screenshot-calendar-agenda.png)
+
+**Day View**:
+![Day View](./screenshots/screenshot-calendar-day-view.png)
+
+**3-Day View**:
+![3-Day View](./screenshots/screenshot-calendar-3day-view.png)
+
+**Week View**:
+![Week View](./screenshots/screenshot-calendar-week-view.png)
+
+**Month View**:
+![Month View](./screenshots/screenshot-calendar-month-view.png)
+
+### Event Management
+
+**Event Editor**:
+![Event Editor](./screenshots/screenshot-event-editor.png)
+
+### Calendar Management
+
+**Calendar Management Page**:
+![Calendar Management](./screenshots/screenshot-calendars.png)
+
+### Settings
+
+**Settings Page**:
+![Settings Page](./screenshots/screenshot-settings.png)
+
+### Admin Panel
+
+**Admin Panel - Users Tab**:
+![Admin Panel - Users](./screenshots/screenshot-admin.png)
+
+**Admin Panel - Calendars Tab**:
+![Admin Panel - Calendars](./screenshots/screenshot-admin-calendars.png)
+
+**Admin Panel - Events Tab**:
+![Admin Panel - Events](./screenshots/screenshot-admin-events.png)
+
+**Admin Panel - Couples Tab**:
+![Admin Panel - Couples](./screenshots/screenshot-admin-couples.png)
+
+**Admin Panel - Cleanup Tab**:
+![Admin Panel - Cleanup](./screenshots/screenshot-admin-cleanup.png)
+
+See the [Frontend Documentation](./FRONTEND.md) and [Administrator Guide](./ADMIN.md) for more detailed information about each page.
 
 ## Quick Start
 
