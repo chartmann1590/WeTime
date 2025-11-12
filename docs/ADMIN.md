@@ -131,24 +131,24 @@ const admin = await prisma.user.create({
    - **Couples**: View and manage couples
    - **Cleanup**: Remove duplicate events
 
-![Admin Panel](../screenshots/screenshot-admin.png)
+![Admin Panel](./screenshots/screenshot-admin.png)
 
 **Admin Panel Tabs:**
 
 - **Users Tab**:
-  ![Users Tab](../screenshots/screenshot-admin.png)
+  ![Users Tab](./screenshots/screenshot-admin.png)
 
 - **Calendars Tab**:
-  ![Calendars Tab](../screenshots/screenshot-admin-calendars.png)
+  ![Calendars Tab](./screenshots/screenshot-admin-calendars.png)
 
 - **Events Tab**:
-  ![Events Tab](../screenshots/screenshot-admin-events.png)
+  ![Events Tab](./screenshots/screenshot-admin-events.png)
 
 - **Couples Tab**:
-  ![Couples Tab](../screenshots/screenshot-admin-couples.png)
+  ![Couples Tab](./screenshots/screenshot-admin-couples.png)
 
 - **Cleanup Tab**:
-  ![Cleanup Tab](../screenshots/screenshot-admin-cleanup.png)
+  ![Cleanup Tab](./screenshots/screenshot-admin-cleanup.png)
 
 > **Note**: Additional screenshots are available in the main README.md file.
 

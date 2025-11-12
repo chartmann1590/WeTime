@@ -73,32 +73,32 @@ apps/frontend/
 
 The primary calendar interface with multiple view options.
 
-![Main Calendar - Agenda View](../screenshots/screenshot-main-calendar-agenda.png)
+![Main Calendar - Agenda View](./screenshots/screenshot-main-calendar-agenda.png)
 
 **Calendar Views:**
 
 - **Agenda View** (default on mobile):
-  ![Agenda View](../screenshots/screenshot-calendar-agenda.png)
+  ![Agenda View](./screenshots/screenshot-calendar-agenda.png)
 
 - **Day View**:
-  ![Day View](../screenshots/screenshot-calendar-day-view.png)
+  ![Day View](./screenshots/screenshot-calendar-day-view.png)
 
 - **3-Day View**:
-  ![3-Day View](../screenshots/screenshot-calendar-3day-view.png)
+  ![3-Day View](./screenshots/screenshot-calendar-3day-view.png)
 
 - **Week View**:
-  ![Week View](../screenshots/screenshot-calendar-week-view.png)
+  ![Week View](./screenshots/screenshot-calendar-week-view.png)
 
 - **Month View**:
-  ![Month View](../screenshots/screenshot-calendar-month-view.png)
+  ![Month View](./screenshots/screenshot-calendar-month-view.png)
 
 **Event Editor:**
 
-![Event Editor](../screenshots/screenshot-event-editor.png)
+![Event Editor](./screenshots/screenshot-event-editor.png)
 
 **Event Editor (Open):**
 
-![Event Editor Open](../screenshots/screenshot-event-editor-open.png)
+![Event Editor Open](./screenshots/screenshot-event-editor-open.png)
 
 **Features:**
 - Multiple calendar views (Agenda, Day, 3-Day, Week, Month)
@@ -125,7 +125,7 @@ The primary calendar interface with multiple view options.
 
 User authentication page.
 
-![Login Page](../screenshots/screenshot-login.png)
+![Login Page](./screenshots/screenshot-login.png)
 
 **Features:**
 - Email/password login
@@ -139,7 +139,7 @@ User authentication page.
 
 New user registration page.
 
-![Signup Page](../screenshots/screenshot-signup.png)
+![Signup Page](./screenshots/screenshot-signup.png)
 
 **Features:**
 - Email, password, name fields
@@ -153,9 +153,9 @@ New user registration page.
 
 Calendar management interface.
 
-![Calendar Management](../screenshots/screenshot-calendars.png)
+![Calendar Management](./screenshots/screenshot-calendars.png)
 
-![Calendar Management Full](../screenshots/screenshot-calendars-management.png)
+![Calendar Management Full](./screenshots/screenshot-calendars-management.png)
 
 **Features:**
 - List all calendars
@@ -177,9 +177,9 @@ Calendar management interface.
 
 User account and application settings.
 
-![Settings Page](../screenshots/screenshot-settings.png)
+![Settings Page](./screenshots/screenshot-settings.png)
 
-![Settings Profile](../screenshots/screenshot-settings-profile.png)
+![Settings Profile](./screenshots/screenshot-settings-profile.png)
 
 **Sections:**
 1. **Profile**: Update email and name
@@ -194,7 +194,7 @@ User account and application settings.
 
 Administrator panel (admin users only).
 
-![Admin Panel](../screenshots/screenshot-admin.png)
+![Admin Panel](./screenshots/screenshot-admin.png)
 
 **Features:**
 - User management
@@ -206,19 +206,19 @@ Administrator panel (admin users only).
 **Admin Panel Tabs:**
 
 - **Users Tab**:
-  ![Users Tab](../screenshots/screenshot-admin.png)
+  ![Users Tab](./screenshots/screenshot-admin.png)
 
 - **Calendars Tab**:
-  ![Calendars Tab](../screenshots/screenshot-admin-calendars.png)
+  ![Calendars Tab](./screenshots/screenshot-admin-calendars.png)
 
 - **Events Tab**:
-  ![Events Tab](../screenshots/screenshot-admin-events.png)
+  ![Events Tab](./screenshots/screenshot-admin-events.png)
 
 - **Couples Tab**:
-  ![Couples Tab](../screenshots/screenshot-admin-couples.png)
+  ![Couples Tab](./screenshots/screenshot-admin-couples.png)
 
 - **Cleanup Tab**:
-  ![Cleanup Tab](../screenshots/screenshot-admin-cleanup.png)
+  ![Cleanup Tab](./screenshots/screenshot-admin-cleanup.png)
 
 See [ADMIN.md](./ADMIN.md) for details.
 
