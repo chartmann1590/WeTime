@@ -21,11 +21,28 @@ A beautiful, mobile-first PWA for couples to manage shared calendars, sync exter
 ### Login Page
 ![Login Page](docs/screenshots/screenshot-login.png)
 
-### Main Calendar (Agenda View)
-![Main Calendar](docs/screenshots/screenshot-main-calendar-agenda.png)
-
 ### Signup Page
 ![Signup Page](docs/screenshots/screenshot-signup.png)
+
+### Main Calendar Views
+
+**Agenda View** (default on mobile):
+![Agenda View](docs/screenshots/screenshot-calendar-agenda.png)
+
+**Day View**:
+![Day View](docs/screenshots/screenshot-calendar-day-view.png)
+
+**3-Day View**:
+![3-Day View](docs/screenshots/screenshot-calendar-3day-view.png)
+
+**Week View**:
+![Week View](docs/screenshots/screenshot-calendar-week-view.png)
+
+**Month View**:
+![Month View](docs/screenshots/screenshot-calendar-month-view.png)
+
+### Event Editor
+![Event Editor](docs/screenshots/screenshot-event-editor.png)
 
 ### Calendar Management
 ![Calendar Management](docs/screenshots/screenshot-calendars.png)
@@ -34,7 +51,24 @@ A beautiful, mobile-first PWA for couples to manage shared calendars, sync exter
 ![Settings Page](docs/screenshots/screenshot-settings.png)
 
 ### Admin Panel
+
+**Main Admin Panel**:
 ![Admin Panel](docs/screenshots/screenshot-admin.png)
+
+**Users Tab**:
+![Users Tab](docs/screenshots/screenshot-admin.png)
+
+**Calendars Tab**:
+![Calendars Tab](docs/screenshots/screenshot-admin-calendars.png)
+
+**Events Tab**:
+![Events Tab](docs/screenshots/screenshot-admin-events.png)
+
+**Couples Tab**:
+![Couples Tab](docs/screenshots/screenshot-admin-couples.png)
+
+**Cleanup Tab**:
+![Cleanup Tab](docs/screenshots/screenshot-admin-cleanup.png)
 
 ## Quick Start
 

@@ -75,6 +75,27 @@ The primary calendar interface with multiple view options.
 
 ![Main Calendar - Agenda View](../screenshots/screenshot-main-calendar-agenda.png)
 
+**Calendar Views:**
+
+- **Agenda View** (default on mobile):
+  ![Agenda View](../screenshots/screenshot-calendar-agenda.png)
+
+- **Day View**:
+  ![Day View](../screenshots/screenshot-calendar-day-view.png)
+
+- **3-Day View**:
+  ![3-Day View](../screenshots/screenshot-calendar-3day-view.png)
+
+- **Week View**:
+  ![Week View](../screenshots/screenshot-calendar-week-view.png)
+
+- **Month View**:
+  ![Month View](../screenshots/screenshot-calendar-month-view.png)
+
+**Event Editor:**
+
+![Event Editor](../screenshots/screenshot-event-editor.png)
+
 **Features:**
 - Multiple calendar views (Agenda, Day, 3-Day, Week, Month)
 - Date navigation (previous/next)
