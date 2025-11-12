@@ -96,6 +96,10 @@ The primary calendar interface with multiple view options.
 
 ![Event Editor](../screenshots/screenshot-event-editor.png)
 
+**Event Editor (Open):**
+
+![Event Editor Open](../screenshots/screenshot-event-editor-open.png)
+
 **Features:**
 - Multiple calendar views (Agenda, Day, 3-Day, Week, Month)
 - Date navigation (previous/next)
@@ -151,6 +155,8 @@ Calendar management interface.
 
 ![Calendar Management](../screenshots/screenshot-calendars.png)
 
+![Calendar Management Full](../screenshots/screenshot-calendars-management.png)
+
 **Features:**
 - List all calendars
 - Create new calendars (Personal, External)
@@ -173,6 +179,8 @@ User account and application settings.
 
 ![Settings Page](../screenshots/screenshot-settings.png)
 
+![Settings Profile](../screenshots/screenshot-settings-profile.png)
+
 **Sections:**
 1. **Profile**: Update email and name
 2. **Password**: Change password
@@ -186,12 +194,31 @@ User account and application settings.
 
 Administrator panel (admin users only).
 
+![Admin Panel](../screenshots/screenshot-admin.png)
+
 **Features:**
 - User management
 - Calendar management
 - Event management
 - Couple management
 - Duplicate cleanup tools
+
+**Admin Panel Tabs:**
+
+- **Users Tab**:
+  ![Users Tab](../screenshots/screenshot-admin.png)
+
+- **Calendars Tab**:
+  ![Calendars Tab](../screenshots/screenshot-admin-calendars.png)
+
+- **Events Tab**:
+  ![Events Tab](../screenshots/screenshot-admin-events.png)
+
+- **Couples Tab**:
+  ![Couples Tab](../screenshots/screenshot-admin-couples.png)
+
+- **Cleanup Tab**:
+  ![Cleanup Tab](../screenshots/screenshot-admin-cleanup.png)
 
 See [ADMIN.md](./ADMIN.md) for details.
 

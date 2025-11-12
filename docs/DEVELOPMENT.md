@@ -154,9 +154,7 @@ cd apps/backend
 npx prisma studio
 ```
 
-Opens at http://localhost:5555
-
-> **Note**: Prisma Studio provides a visual interface to browse and edit your database. Start it with `npx prisma studio` from the `apps/backend` directory. A screenshot of Prisma Studio would show the database tables and data in a user-friendly interface.
+> **Note**: Prisma Studio provides a visual interface to browse and edit your database. Start it with `npx prisma studio` from the `apps/backend` directory. It will open in your default browser.
 
 **Create Migration:**
 
