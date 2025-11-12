@@ -1,0 +1,108 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+logs/
+
+# local env files
+.env*.local
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# turbo
+.turbo
+
+# cache
+.cache
+.pnpm-store
+.npm
+.yarn
+
+# certs
+/certs
+*.crt
+*.key
+*.pem
+*.cert
+
+# uploads
+/uploads
+
+# database
+*.sql
+*.dump
+*.db
+*.sqlite
+*.sqlite3
+
+# backups
+*.backup
+*.bak
+*.old
+backup/
+backups/
+
+# temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

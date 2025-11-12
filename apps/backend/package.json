@@ -1,0 +1,44 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "node server.js",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "seed": "ts-node --transpile-only src/scripts/seed.ts",
+    "create-admin": "ts-node --transpile-only src/scripts/create-admin.ts"
+  },
+  "dependencies": {
+    "next": "15.0.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "@prisma/client": "^6.19.0",
+    "zod": "^3.23.8",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "cookie": "^0.6.0",
+    "prisma": "^6.19.0",
+    "node-ical": "^0.16.0",
+    "rrule": "^2.8.1",
+    "nodemailer": "^6.9.13",
+    "ics": "^2.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/cookie": "^0.6.0",
+    "@types/nodemailer": "^6.4.14",
+    "typescript": "^5",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.0",
+    "ts-node": "^10.9.2"
+  }
+}

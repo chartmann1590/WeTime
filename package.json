@@ -1,0 +1,22 @@
+{
+  "name": "wetime",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter ./apps/* run build",
+    "dev": "pnpm --filter ./apps/* --parallel run dev",
+    "start": "pnpm --filter ./apps/* --parallel run start",
+    "lint": "pnpm --filter ./apps/* --parallel run lint",
+    "test": "pnpm --filter ./apps/* --parallel run test"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0",
+    "turbo": "latest",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0"
+  }
+}

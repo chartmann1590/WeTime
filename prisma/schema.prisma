@@ -1,0 +1,110 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  avatarUrl     String?
+  timeZone      String   @default("America/New_York")
+  coupleId      String?
+  couple        Couple?  @relation(fields: [coupleId], references: [id], onDelete: SetNull)
+  notifyEmail   Boolean  @default(true)
+  isAdmin       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  calendars     Calendar[]
+  events        Event[]
+  attendees     Attendee[]
+  smtpSetting   SmtpSetting?
+}
+
+model Couple {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  users            User[]
+  sharedCalendar   Calendar?  @relation("SharedCalendar", fields: [sharedCalendarId], references: [id])
+  sharedCalendarId String   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  calendars        Calendar[]
+}
+
+enum CalendarType {
+  PERSONAL
+  SHARED
+  EXTERNAL
+  IMPORTED
+}
+
+model Calendar {
+  id           String       @id @default(cuid())
+  ownerId      String?
+  owner        User?        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  coupleId     String?
+  couple       Couple?      @relation(fields: [coupleId], references: [id])
+  sharedInCouple Couple? @relation("SharedCalendar")
+  type         CalendarType
+  name         String
+  color        String        @default("#3b82f6")
+  icsUrl       String?       // EXTERNAL
+  lastFetched  DateTime?
+  etag         String?
+  events       Event[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  calendarId    String
+  calendar      Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  location      String?
+  startsAtUtc   DateTime
+  endsAtUtc     DateTime
+  allDay        Boolean  @default(false)
+  rrule         String?          // RFC 5545 RRULE
+  exdates       String[] @default([]) // ISO dates in event TZ
+  visibility    String   @default("owner") // owner | partner
+  color         String?
+  createdById   String
+  createdBy     User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  attendees     Attendee[]
+  source        String   @default("local") // local|external|imported
+  externalUid   String?  // stable UID for ICS de-dup
+  originalTz    String?  // for expansion
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
+model Attendee {
+  id        String  @id @default(cuid())
+  eventId   String
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String  @default("needsAction") // accepted|declined|tentative|needsAction
+}
+
+model SmtpSetting {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  host       String
+  port       Int
+  secure     Boolean  @default(true)
+  username   String
+  password   String   // encrypted
+  fromName   String
+  fromEmail  String
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
