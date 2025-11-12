@@ -1,16 +1,30 @@
 'use client'
-import { formatTime, isSameDay } from '@/lib/utils'
+import { formatTime, isSameDay, filterEventsByOwner } from '@/lib/utils'
 import type { Event } from '@/types'
 
 interface DayViewProps {
   events: Event[]
   date: Date
   onEventClick?: (event: Event) => void
+  sideBySide?: boolean
+  currentUserId?: string
+  partnerId?: string | null
+  currentUserName?: string
+  partnerName?: string | null
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 
-export function DayView({ events, date, onEventClick }: DayViewProps) {
+export function DayView({ 
+  events, 
+  date, 
+  onEventClick,
+  sideBySide = false,
+  currentUserId = '',
+  partnerId = null,
+  currentUserName = '',
+  partnerName = null
+}: DayViewProps) {
   // Normalize the view date to start of day in local timezone
   const viewDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
   // Calculate day boundaries: start of day and start of next day
@@ -25,7 +39,11 @@ export function DayView({ events, date, onEventClick }: DayViewProps) {
     
     return overlaps
   })
-  
+
+  // Filter events for side-by-side mode
+  const { currentUserEvents, partnerEvents, sharedEvents } = sideBySide && currentUserId
+    ? filterEventsByOwner(dayEvents, currentUserId, partnerId)
+    : { currentUserEvents: dayEvents, partnerEvents: [], sharedEvents: [] }
 
   const getEventPosition = (event: Event) => {
     const start = new Date(event.startsAtUtc)
@@ -38,48 +56,79 @@ export function DayView({ events, date, onEventClick }: DayViewProps) {
     return { top: `${top}%`, height: `${Math.max(height, 0.5)}%` }
   }
 
-  return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="relative min-h-[1200px]">
-        {/* Hour markers */}
-        {HOURS.map((hour) => (
-          <div
-            key={hour}
-            className="absolute left-0 right-0 border-t border-border"
-            style={{ top: `${(hour / 24) * 100}%` }}
-          >
-            <div className="absolute left-0 w-16 text-xs text-muted-foreground px-2 -mt-2">
-              {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
-            </div>
+  const renderDayColumn = (columnEvents: Event[], userName: string, isPartner = false) => {
+    return (
+      <div className="flex-1 overflow-y-auto border-r border-border last:border-r-0">
+        {sideBySide && (
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-2">
+            <h3 className="text-sm font-semibold">{userName}</h3>
           </div>
-        ))}
-
-        {/* Events */}
-        {dayEvents.map((event) => {
-          const pos = getEventPosition(event)
-          return (
+        )}
+        <div className="relative min-h-[1200px]">
+          {/* Hour markers */}
+          {HOURS.map((hour) => (
             <div
-              key={event.id}
-              onClick={() => onEventClick?.(event)}
-              className="absolute left-20 right-2 rounded-md px-3 py-2 text-sm cursor-pointer hover:opacity-80 transition-opacity border-l-2 flex flex-col justify-start min-h-[3rem] overflow-hidden"
-              style={{
-                top: pos.top,
-                height: pos.height,
-                backgroundColor: `${event.calendar?.color || '#3b82f6'}20`,
-                borderLeftColor: event.calendar?.color || '#3b82f6',
-              }}
+              key={hour}
+              className="absolute left-0 right-0 border-t border-border"
+              style={{ top: `${(hour / 24) * 100}%` }}
             >
-              <div className="font-semibold leading-tight break-words">{event.title}</div>
-              {!event.allDay && (
-                <div className="text-xs text-muted-foreground mt-0.5 leading-tight">
-                  {formatTime(new Date(event.startsAtUtc))} - {formatTime(new Date(event.endsAtUtc))}
+              {!sideBySide && (
+                <div className="absolute left-0 w-16 text-xs text-muted-foreground px-2 -mt-2">
+                  {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                </div>
+              )}
+              {sideBySide && hour % 2 === 0 && (
+                <div className="absolute left-0 w-12 text-xs text-muted-foreground px-2 -mt-2">
+                  {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
                 </div>
               )}
             </div>
-          )
-        })}
+          ))}
+
+          {/* Events */}
+          {columnEvents.map((event) => {
+            const pos = getEventPosition(event)
+            const isShared = sharedEvents.includes(event)
+            return (
+              <div
+                key={event.id}
+                onClick={() => onEventClick?.(event)}
+                className="absolute left-20 right-2 rounded-md px-3 py-2 text-sm cursor-pointer hover:opacity-80 transition-opacity border-l-2 flex flex-col justify-start min-h-[3rem] overflow-hidden"
+                style={{
+                  top: pos.top,
+                  height: pos.height,
+                  backgroundColor: `${event.calendar?.color || '#3b82f6'}20`,
+                  borderLeftColor: event.calendar?.color || '#3b82f6',
+                  borderStyle: isShared ? 'dashed' : 'solid',
+                }}
+              >
+                <div className="font-semibold leading-tight break-words">{event.title}</div>
+                {!event.allDay && (
+                  <div className="text-xs text-muted-foreground mt-0.5 leading-tight">
+                    {formatTime(new Date(event.startsAtUtc))} - {formatTime(new Date(event.endsAtUtc))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (sideBySide && partnerId && partnerName) {
+    // Combine shared events with each user's events
+    const userEventsWithShared = [...currentUserEvents, ...sharedEvents]
+    const partnerEventsWithShared = [...partnerEvents, ...sharedEvents]
+    
+    return (
+      <div className="flex-1 overflow-hidden flex">
+        {renderDayColumn(userEventsWithShared, currentUserName || 'You', false)}
+        {renderDayColumn(partnerEventsWithShared, partnerName, true)}
+      </div>
+    )
+  }
+
+  return renderDayColumn(dayEvents, '', false)
 }
 

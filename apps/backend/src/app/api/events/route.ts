@@ -49,7 +49,19 @@ export async function GET(req: Request) {
         { startsAtUtc: { lt: end } },
         { endsAtUtc: { gt: start } }
       ]
-    } 
+    },
+    include: {
+      calendar: {
+        select: {
+          id: true,
+          ownerId: true,
+          coupleId: true,
+          type: true,
+          name: true,
+          color: true,
+        }
+      }
+    }
   });
 
   // Expand recurring events within range
@@ -61,7 +73,13 @@ export async function GET(req: Request) {
         const dur = e.endsAtUtc.getTime() - e.startsAtUtc.getTime();
         const startsAtUtc = new Date(d);
         const endsAtUtc = new Date(startsAtUtc.getTime() + dur);
-        expanded.push({ ...e, startsAtUtc, endsAtUtc, recurrenceInstance: true });
+        expanded.push({ 
+          ...e, 
+          startsAtUtc, 
+          endsAtUtc, 
+          recurrenceInstance: true,
+          calendar: e.calendar
+        });
       }
     } else {
       expanded.push(e);

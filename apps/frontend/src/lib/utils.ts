@@ -76,3 +76,49 @@ export function getDaysInMonth(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
 }
 
+export function filterEventsByOwner(
+  events: any[],
+  currentUserId: string,
+  partnerId: string | null
+): { currentUserEvents: any[]; partnerEvents: any[]; sharedEvents: any[] } {
+  const currentUserEvents: any[] = []
+  const partnerEvents: any[] = []
+  const sharedEvents: any[] = []
+
+  for (const event of events) {
+    const calendar = event.calendar
+    const isSharedCalendar = calendar?.coupleId && !calendar?.ownerId
+    const isSharedEvent = event.visibility === 'partner'
+    const isCurrentUserCalendar = calendar?.ownerId === currentUserId
+    const isPartnerCalendar = partnerId && calendar?.ownerId === partnerId
+    const isCurrentUserCreated = event.createdById === currentUserId
+    const isPartnerCreated = partnerId && event.createdById === partnerId
+
+    // Shared calendar events (from shared calendar) go to both columns
+    // Events with visibility='partner' also go to both columns (shared events)
+    if (isSharedCalendar || isSharedEvent) {
+      sharedEvents.push(event)
+      continue
+    }
+
+    // Primary: Calendar owner
+    if (isCurrentUserCalendar) {
+      currentUserEvents.push(event)
+    } else if (isPartnerCalendar) {
+      partnerEvents.push(event)
+    } else {
+      // Secondary: Event creator (fallback)
+      if (isCurrentUserCreated) {
+        currentUserEvents.push(event)
+      } else if (isPartnerCreated) {
+        partnerEvents.push(event)
+      } else {
+        // Default to current user if we can't determine
+        currentUserEvents.push(event)
+      }
+    }
+  }
+
+  return { currentUserEvents, partnerEvents, sharedEvents }
+}
+

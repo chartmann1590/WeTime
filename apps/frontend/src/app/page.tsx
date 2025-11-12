@@ -10,10 +10,11 @@ import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { useAuth } from '@/hooks/use-auth'
 import { addDays, addWeeks, addMonths, getWeekStart, getMonthStart } from '@/lib/utils'
-import { Calendar, Settings, Plus, ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
+import { Calendar, Settings, Plus, ChevronLeft, ChevronRight, LogOut, Columns } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme-toggle'
 import type { Event, Calendar as CalendarType } from '@/types'
 
-type View = 'agenda' | 'day' | '3day' | 'week' | 'month'
+type View = 'agenda' | 'day' | '3day' | 'week' | 'month' | 'shared'
 
 export default function Home() {
   const router = useRouter()
@@ -25,6 +26,15 @@ export default function Home() {
   const [eventEditorOpen, setEventEditorOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sideBySide, setSideBySide] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sideBySide') === 'true'
+    }
+    return false
+  })
+  const [currentUser, setCurrentUser] = useState<{ id: string; name: string } | null>(null)
+  const [partner, setPartner] = useState<{ id: string; name: string } | null>(null)
+  const [hasCouple, setHasCouple] = useState(false)
 
   const loadData = useCallback(async () => {
     try {
@@ -70,12 +80,51 @@ export default function Home() {
       try {
         await api.calendars.list()
         loadData()
+        loadUserInfo()
       } catch (error) {
         router.push('/login')
       }
     }
     checkAuth()
   }, [loadData, router])
+
+  const loadUserInfo = useCallback(async () => {
+    try {
+      const [profileRes, coupleRes] = await Promise.all([
+        api.user.getProfile(),
+        api.couple.get(),
+      ])
+      
+      setCurrentUser({
+        id: profileRes.user.id,
+        name: profileRes.user.name,
+      })
+      
+      if (coupleRes.couple && coupleRes.couple.partner) {
+        setHasCouple(true)
+        setPartner({
+          id: coupleRes.couple.partner.id,
+          name: coupleRes.couple.partner.name,
+        })
+      } else {
+        setHasCouple(false)
+        setPartner(null)
+        // Disable side-by-side if no couple
+        if (sideBySide) {
+          setSideBySide(false)
+          localStorage.setItem('sideBySide', 'false')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user info:', error)
+    }
+  }, [sideBySide])
+
+  const toggleSideBySide = () => {
+    const newValue = !sideBySide
+    setSideBySide(newValue)
+    localStorage.setItem('sideBySide', String(newValue))
+  }
 
   const getRangeStart = (date: Date, view: View): Date => {
     switch (view) {
@@ -92,6 +141,7 @@ export default function Home() {
         return new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate())
       }
       case 'month':
+      case 'shared':
         return getMonthStart(date)
       default:
         return new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -118,7 +168,8 @@ export default function Home() {
         // Add 7 days and create new date at midnight
         return new Date(normalizedWeekStart.getFullYear(), normalizedWeekStart.getMonth(), normalizedWeekStart.getDate() + 7)
       }
-      case 'month': {
+      case 'month':
+      case 'shared': {
         const monthStart = getMonthStart(date)
         // Add 1 month and create new date at midnight
         return new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, monthStart.getDate())
@@ -139,6 +190,7 @@ export default function Home() {
         setCurrentDate(addWeeks(currentDate, amount))
         break
       case 'month':
+      case 'shared':
         setCurrentDate(addMonths(currentDate, amount))
         break
       default:
@@ -188,6 +240,18 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {hasCouple && (
+              <Button
+                variant={sideBySide ? "default" : "outline"}
+                size="sm"
+                onClick={toggleSideBySide}
+                title="Side-by-side view"
+              >
+                <Columns className="h-4 w-4 mr-2" />
+                Side-by-Side
+              </Button>
+            )}
+            <ThemeToggle />
             <Button variant="ghost" size="icon" onClick={() => router.push('/settings')}>
               <Settings className="h-5 w-5" />
             </Button>
@@ -203,7 +267,7 @@ export default function Home() {
 
         {/* View Tabs */}
         <div className="flex border-t border-border">
-          {(['agenda', 'day', '3day', 'week', 'month'] as View[]).map((v) => (
+          {(['agenda', 'day', '3day', 'week', 'month', ...(hasCouple ? ['shared'] : [])] as View[]).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -221,19 +285,58 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden p-4">
-        {view === 'agenda' && <AgendaView events={events} currentDate={currentDate} />}
-        {view === 'day' && <DayView events={events} date={currentDate} onEventClick={handleEventClick} />}
+        {view === 'agenda' && (
+          <AgendaView
+            events={events}
+            currentDate={currentDate}
+            sideBySide={sideBySide && hasCouple}
+            currentUserId={currentUser?.id || ''}
+            partnerId={partner?.id || null}
+            currentUserName={currentUser?.name || ''}
+            partnerName={partner?.name || null}
+          />
+        )}
+        {view === 'day' && (
+          <DayView
+            events={events}
+            date={currentDate}
+            onEventClick={handleEventClick}
+            sideBySide={sideBySide && hasCouple}
+            currentUserId={currentUser?.id || ''}
+            partnerId={partner?.id || null}
+            currentUserName={currentUser?.name || ''}
+            partnerName={partner?.name || null}
+          />
+        )}
         {view === '3day' && (
-          <div className="grid grid-cols-3 gap-4 h-full">
-            {[0, 1, 2].map((offset) => (
-              <div key={offset} className="border-r border-border last:border-r-0">
-                <DayView
-                  events={events}
-                  date={addDays(currentDate, offset)}
-                  onEventClick={handleEventClick}
-                />
-              </div>
-            ))}
+          <div className={`grid gap-4 h-full ${sideBySide && hasCouple ? 'grid-cols-6' : 'grid-cols-3'}`}>
+            {[0, 1, 2].map((offset) => {
+              if (sideBySide && hasCouple) {
+                return (
+                  <div key={offset} className="col-span-3 border-r border-border last:border-r-0">
+                    <DayView
+                      events={events}
+                      date={addDays(currentDate, offset)}
+                      onEventClick={handleEventClick}
+                      sideBySide={true}
+                      currentUserId={currentUser?.id || ''}
+                      partnerId={partner?.id || null}
+                      currentUserName={currentUser?.name || ''}
+                      partnerName={partner?.name || null}
+                    />
+                  </div>
+                )
+              }
+              return (
+                <div key={offset} className="border-r border-border last:border-r-0">
+                  <DayView
+                    events={events}
+                    date={addDays(currentDate, offset)}
+                    onEventClick={handleEventClick}
+                  />
+                </div>
+              )
+            })}
           </div>
         )}
         {view === 'week' && (
@@ -241,11 +344,36 @@ export default function Home() {
             events={events}
             weekStart={getWeekStart(currentDate)}
             onEventClick={handleEventClick}
+            sideBySide={sideBySide && hasCouple}
+            currentUserId={currentUser?.id || ''}
+            partnerId={partner?.id || null}
+            currentUserName={currentUser?.name || ''}
+            partnerName={partner?.name || null}
           />
         )}
         {view === 'month' && (
           <MonthView
             events={events}
+            month={currentDate}
+            onEventClick={handleEventClick}
+            onDayClick={(date) => {
+              setCurrentDate(date)
+              setView('day')
+            }}
+            sideBySide={sideBySide && hasCouple}
+            currentUserId={currentUser?.id || ''}
+            partnerId={partner?.id || null}
+            currentUserName={currentUser?.name || ''}
+            partnerName={partner?.name || null}
+          />
+        )}
+        {view === 'shared' && hasCouple && (
+          <MonthView
+            events={events.filter((e) => {
+              const calendar = e.calendar
+              // Show events from shared calendar (coupleId set, no ownerId) or events with visibility='partner'
+              return (calendar?.coupleId && !calendar?.ownerId) || e.visibility === 'partner'
+            })}
             month={currentDate}
             onEventClick={handleEventClick}
             onDayClick={(date) => {
