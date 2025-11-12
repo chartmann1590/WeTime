@@ -91,6 +91,8 @@ This starts:
 - Frontend: http://localhost:3000
 - Backend: http://localhost:3001
 
+> **Note**: The development servers run with hot reload enabled. Changes to code will automatically refresh in the browser. You can verify the servers are running by checking the terminal output or visiting the URLs in your browser.
+
 ## Development Workflow
 
 ### Project Structure
@@ -153,6 +155,8 @@ npx prisma studio
 ```
 
 Opens at http://localhost:5555
+
+> **Note**: Prisma Studio provides a visual interface to browse and edit your database. Start it with `npx prisma studio` from the `apps/backend` directory. A screenshot of Prisma Studio would show the database tables and data in a user-friendly interface.
 
 **Create Migration:**
 

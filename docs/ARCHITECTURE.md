@@ -4,6 +4,8 @@
 
 WeTime is a couples calendar application built as a modern, full-stack web application with a microservices architecture. The system is designed to be mobile-first, secure, and scalable.
 
+> **Note**: The architecture diagram below shows the high-level system design. For a visual representation, see the ASCII diagram in the "High-Level Architecture" section.
+
 ## System Architecture
 
 ### High-Level Architecture

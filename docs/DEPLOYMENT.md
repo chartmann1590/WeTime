@@ -90,6 +90,8 @@ docker compose exec backend npm run seed
 - **Frontend**: https://localhost (accept self-signed certificate)
 - **API**: https://localhost/api
 
+> **Note**: Verify all services are running with `docker compose ps`. All services should show "Up" status. The output will show all containers (db, backend, frontend, worker, nginx) with their status and port mappings.
+
 ## Docker Services
 
 ### Database (`db`)

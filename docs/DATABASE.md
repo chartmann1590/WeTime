@@ -4,6 +4,8 @@
 
 WeTime uses PostgreSQL 16 with Prisma ORM for database management. The schema is defined in `prisma/schema.prisma`.
 
+> **Note**: The database schema can be visualized using Prisma Studio (`npx prisma studio`) or by examining the `prisma/schema.prisma` file directly.
+
 ## Entity Relationship Diagram
 
 ```

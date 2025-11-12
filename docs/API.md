@@ -9,6 +9,10 @@
 
 All protected endpoints require authentication via JWT token stored in an HttpOnly cookie. The token is automatically included in requests from the frontend.
 
+![API Testing Example](../screenshots/screenshot-api-testing.png)
+
+> **Note**: Use tools like Postman, curl, or the browser's developer console to test API endpoints. All protected endpoints require a valid JWT token in the cookie.
+
 ### Authentication Endpoints
 
 #### POST `/api/auth/signup`

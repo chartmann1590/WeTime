@@ -1,0 +1,6 @@
+﻿NAME                     IMAGE                  COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+cupla-clone-backend-1    cupla-clone-backend    "docker-entrypoint.sΓÇª"   backend    29 minutes ago   Up 29 minutes             
+cupla-clone-db-1         postgres:16-alpine     "docker-entrypoint.sΓÇª"   db         29 minutes ago   Up 29 minutes (healthy)   5432/tcp
+cupla-clone-frontend-1   cupla-clone-frontend   "docker-entrypoint.sΓÇª"   frontend   29 minutes ago   Up 29 minutes             
+cupla-clone-nginx-1      cupla-clone-nginx      "/docker-entrypoint.ΓÇª"   nginx      29 minutes ago   Up 29 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp
+cupla-clone-worker-1     cupla-clone-worker     "docker-entrypoint.sΓÇª"   worker     29 minutes ago   Up 29 minutes             
