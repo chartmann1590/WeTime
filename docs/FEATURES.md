@@ -1,5 +1,19 @@
 # WeTime Features Documentation
 
+## Screenshots
+
+### Initial Page View
+![Initial Page](screenshots/feature-1-initial-page.png)
+The main calendar page showing the side-by-side toggle button and view tabs.
+
+### Shared Calendar Tab
+![Shared Calendar Tab](screenshots/feature-2-shared-calendar-tab.png)
+The dedicated "Shared" tab displaying only shared calendar events in month view.
+
+### Side-by-Side View
+![Side-by-Side View](screenshots/feature-3-side-by-side-view.png)
+The side-by-side calendar view showing both users' calendars in separate columns.
+
 ## Side-by-Side Calendar View
 
 ### Overview
