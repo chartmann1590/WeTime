@@ -589,6 +589,136 @@ Send a test email using current SMTP settings.
 
 ---
 
+## AI Assistant
+
+#### GET `/api/ai-assistant/settings`
+
+Get user's AI assistant (Ollama) settings.
+
+**Response:**
+```json
+{
+  "ollamaUrl": "http://localhost:11434",
+  "selectedModel": "llama3.2:1b",
+  "useCpu": false
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `401`: Unauthorized
+
+---
+
+#### POST `/api/ai-assistant/settings`
+
+Save AI assistant settings.
+
+**Request Body:**
+```json
+{
+  "ollamaUrl": "http://localhost:11434",
+  "selectedModel": "llama3.2:1b",
+  "useCpu": false
+}
+```
+
+**Response:**
+```json
+{
+  "ollamaUrl": "http://localhost:11434",
+  "selectedModel": "llama3.2:1b",
+  "useCpu": false
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `400`: Invalid URL format
+- `401`: Unauthorized
+
+---
+
+#### GET `/api/ai-assistant/models?ollamaUrl=<url>`
+
+Fetch available models from Ollama server.
+
+**Query Parameters:**
+- `ollamaUrl` (optional): Ollama server URL. If not provided, uses saved settings.
+
+**Response:**
+```json
+{
+  "models": ["llama3.2:1b", "llama3.2:3b", "phi3:mini", "mistral:7b"]
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `400`: Ollama URL not provided or connection failed
+- `401`: Unauthorized
+- `500`: Failed to fetch models from Ollama
+
+---
+
+#### POST `/api/ai-assistant/chat`
+
+Send a chat message to the AI assistant.
+
+**Request Body:**
+```json
+{
+  "message": "What's on my schedule today?",
+  "dateRangeStart": "2024-01-15T00:00:00Z",
+  "dateRangeEnd": "2024-01-22T00:00:00Z"
+}
+```
+
+**Response (no event created):**
+```json
+{
+  "response": "You have 3 events scheduled today:\n1. Team Meeting at 10:00 AM\n2. Lunch with John at 12:30 PM\n3. Project Review at 3:00 PM",
+  "eventCreated": false,
+  "event": null
+}
+```
+
+**Response (event created):**
+```json
+{
+  "response": "I've created the event 'Team Meeting' for tomorrow at 2:00 PM.",
+  "eventCreated": true,
+  "event": {
+    "id": "clx...",
+    "title": "Team Meeting",
+    "description": null,
+    "location": null,
+    "startsAtUtc": "2024-01-16T14:00:00Z",
+    "endsAtUtc": "2024-01-16T15:00:00Z",
+    "allDay": false,
+    "calendarId": "clz...",
+    "calendar": {
+      "id": "clz...",
+      "name": "Personal",
+      "color": "#3b82f6"
+    }
+  }
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `400`: AI assistant not configured or invalid request
+- `401`: Unauthorized
+- `500`: Failed to process chat message (Ollama error, etc.)
+
+**Notes:**
+- The AI has access to the user's calendar context (events, calendars, timezone)
+- The AI can create events based on natural language requests
+- Date range parameters are optional and default to 7 days ago to 30 days ahead
+
+---
+
 ## Internal Cron Endpoints
 
 These endpoints are called by the worker service and require the `INTERNAL_CRON_TOKEN` header.

@@ -39,6 +39,14 @@ WeTime uses PostgreSQL 16 with Prisma ORM for database management. The schema is
             ┌──────────────┐
             │ SmtpSetting  │
             └──────────────┘
+
+┌─────────┐
+│  User   │───1:1───┐
+└─────────┘         │
+                    ▼
+            ┌──────────────────┐
+            │AiAssistantSetting│
+            └──────────────────┘
 ```
 
 ## Models
@@ -66,6 +74,7 @@ Represents a user account in the system.
 - `events`: One-to-many with Event (created events)
 - `attendees`: One-to-many with Attendee (RSVPs)
 - `smtpSetting`: One-to-one with SmtpSetting
+- `aiAssistantSetting`: One-to-one with AiAssistantSetting
 
 **Indexes:**
 - Unique index on `email`
@@ -312,6 +321,40 @@ Stores encrypted SMTP configuration for email reminders.
 
 ---
 
+### AiAssistantSetting
+
+Stores AI assistant (Ollama) configuration per user.
+
+**Fields:**
+- `id` (String, Primary Key): Unique identifier (CUID)
+- `userId` (String, Unique): Foreign key to User
+- `ollamaUrl` (String): Ollama server URL (e.g., "http://localhost:11434")
+- `selectedModel` (String?, Optional): Selected Ollama model name
+- `useCpu` (Boolean): Force CPU mode instead of GPU (default: false)
+- `updatedAt` (DateTime): Last update timestamp
+- `createdAt` (DateTime): Creation timestamp
+
+**Relations:**
+- `user`: One-to-one with User
+
+**Indexes:**
+- Unique index on `userId`
+
+**Example:**
+```typescript
+{
+  id: "clc3333333333",
+  userId: "clx1234567890",
+  ollamaUrl: "http://localhost:11434",
+  selectedModel: "llama3.2:1b",
+  useCpu: false,
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2024-01-01T00:00:00Z"
+}
+```
+
+---
+
 ## Enums
 
 ### CalendarType
@@ -343,6 +386,7 @@ enum CalendarType {
 - User → Couple (via `coupleId`)
 - Couple → Calendar (via `sharedCalendarId`)
 - User → SmtpSetting
+- User → AiAssistantSetting
 
 ---
 
@@ -355,6 +399,7 @@ The following cascading delete behaviors are configured:
   - Deletes created events (Cascade)
   - Deletes attendees (Cascade)
   - Deletes SMTP settings (Cascade)
+  - Deletes AI assistant settings (Cascade)
   - Sets `coupleId` to null (SetNull)
 
 - **Calendar deletion**:

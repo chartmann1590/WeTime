@@ -14,6 +14,7 @@ Welcome to the WeTime documentation. This directory contains comprehensive guide
 - **[Database Schema](./DATABASE.md)** - Complete database schema documentation
 - **[Frontend Documentation](./FRONTEND.md)** - Frontend components, pages, and structure
 - **[API Documentation](./API.md)** - Complete REST API reference
+- **[AI Assistant Documentation](./AI_ASSISTANT.md)** - AI assistant setup, usage, and configuration
 
 ### Administration
 - **[Administrator Guide](./ADMIN.md)** - Admin user creation and panel usage
@@ -121,6 +122,7 @@ See the [Deployment Guide](./DEPLOYMENT.md) for production deployment steps.
 
 ### For Users
 - [Main README](../README.md) - User-facing features and setup
+- [AI Assistant Guide](./AI_ASSISTANT.md) - AI assistant setup and usage
 
 ## Additional Resources
 

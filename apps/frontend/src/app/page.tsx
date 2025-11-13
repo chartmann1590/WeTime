@@ -6,6 +6,7 @@ import { DayView } from '@/components/calendar/day-view'
 import { WeekView } from '@/components/calendar/week-view'
 import { MonthView } from '@/components/calendar/month-view'
 import { EventEditor } from '@/components/event-editor'
+import { ChatModal } from '@/components/ai-assistant/chat-modal'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { useAuth } from '@/hooks/use-auth'
@@ -395,6 +396,13 @@ export default function Home() {
         calendars={calendars}
         onSave={loadData}
         defaultDate={currentDate}
+      />
+
+      {/* AI Assistant Chat Modal */}
+      <ChatModal
+        dateRangeStart={getRangeStart(currentDate, view)}
+        dateRangeEnd={getRangeEnd(currentDate, view)}
+        onEventCreated={loadData}
       />
     </div>
   )

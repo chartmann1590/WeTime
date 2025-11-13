@@ -69,6 +69,24 @@ export const api = {
     saveSmtp: (data: any) => fetchApi('/settings/smtp', { method: 'POST', body: JSON.stringify(data) }),
     testSmtp: () => fetchApi('/settings/smtp/test', { method: 'POST' }),
   },
+  aiAssistant: {
+    getSettings: () => fetchApi('/ai-assistant/settings'),
+    saveSettings: (data: { ollamaUrl: string; selectedModel?: string; useCpu?: boolean }) =>
+      fetchApi('/ai-assistant/settings', { method: 'POST', body: JSON.stringify(data) }),
+    getModels: (ollamaUrl?: string) => {
+      const url = ollamaUrl ? `/ai-assistant/models?ollamaUrl=${encodeURIComponent(ollamaUrl)}` : '/ai-assistant/models'
+      return fetchApi(url)
+    },
+    chat: (message: string, dateRangeStart?: Date, dateRangeEnd?: Date) =>
+      fetchApi('/ai-assistant/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message,
+          dateRangeStart: dateRangeStart?.toISOString(),
+          dateRangeEnd: dateRangeEnd?.toISOString(),
+        }),
+      }),
+  },
   admin: {
     cleanupDuplicates: () => fetchApi('/admin/cleanup-duplicates', { method: 'POST' }),
     users: {

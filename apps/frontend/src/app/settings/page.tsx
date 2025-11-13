@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { api } from '@/lib/api'
 import { useAuth } from '@/hooks/use-auth'
 import { ArrowLeft, LogOut } from 'lucide-react'
+import { ThemeSelect } from '@/components/theme-toggle'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -34,10 +35,20 @@ export default function SettingsPage() {
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<string | null>(null)
 
+  const [aiSettings, setAiSettings] = useState({
+    ollamaUrl: '',
+    selectedModel: '',
+    useCpu: false,
+  })
+  const [aiModels, setAiModels] = useState<string[]>([])
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [aiMessage, setAiMessage] = useState<string | null>(null)
+
   useEffect(() => {
     loadProfile()
     loadCouple()
     loadSmtp()
+    loadAiSettings()
   }, [])
 
   const loadProfile = async () => {
@@ -170,6 +181,63 @@ export default function SettingsPage() {
     }
   }
 
+  const loadAiSettings = async () => {
+    try {
+      const data = await api.aiAssistant.getSettings()
+      setAiSettings({
+        ollamaUrl: data.ollamaUrl || '',
+        selectedModel: data.selectedModel || '',
+        useCpu: data.useCpu || false,
+      })
+    } catch (error) {
+      console.error('Failed to load AI settings:', error)
+    }
+  }
+
+  const handleTestOllamaConnection = async () => {
+    if (!aiSettings.ollamaUrl) {
+      setAiMessage('Please enter an Ollama URL first')
+      setTimeout(() => setAiMessage(null), 3000)
+      return
+    }
+
+    setLoadingModels(true)
+    setAiMessage(null)
+    try {
+      const data = await api.aiAssistant.getModels(aiSettings.ollamaUrl)
+      setAiModels(data.models || [])
+      setAiMessage(`Found ${data.models?.length || 0} models`)
+      setTimeout(() => setAiMessage(null), 3000)
+    } catch (error: any) {
+      setAiMessage(error.message || 'Failed to connect to Ollama')
+      setAiModels([])
+      setTimeout(() => setAiMessage(null), 5000)
+    } finally {
+      setLoadingModels(false)
+    }
+  }
+
+  const handleSaveAiSettings = async () => {
+    if (!aiSettings.ollamaUrl) {
+      setAiMessage('Ollama URL is required')
+      setTimeout(() => setAiMessage(null), 3000)
+      return
+    }
+
+    try {
+      await api.aiAssistant.saveSettings({
+        ollamaUrl: aiSettings.ollamaUrl,
+        selectedModel: aiSettings.selectedModel || undefined,
+        useCpu: aiSettings.useCpu,
+      })
+      setAiMessage('Settings saved successfully!')
+      setTimeout(() => setAiMessage(null), 3000)
+    } catch (error: any) {
+      setAiMessage(error.message || 'Failed to save settings')
+      setTimeout(() => setAiMessage(null), 3000)
+    }
+  }
+
   return (
     <div className="min-h-dvh bg-background p-4 max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
@@ -185,6 +253,16 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>Choose your preferred theme</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ThemeSelect />
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
@@ -429,6 +507,75 @@ export default function SettingsPage() {
                 {testing ? 'Sending...' : 'Send Test Email'}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Assistant (Ollama)</CardTitle>
+            <CardDescription>Configure your AI assistant settings</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Ollama URL</label>
+              <Input
+                value={aiSettings.ollamaUrl}
+                onChange={(e) => setAiSettings({ ...aiSettings, ollamaUrl: e.target.value })}
+                placeholder="http://localhost:11434"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1 block">Model</label>
+              <div className="flex gap-2">
+                <select
+                  value={aiSettings.selectedModel}
+                  onChange={(e) => setAiSettings({ ...aiSettings, selectedModel: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
+                  disabled={aiModels.length === 0}
+                >
+                  <option value="">Select a model...</option>
+                  {aiModels.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  onClick={handleTestOllamaConnection}
+                  disabled={loadingModels || !aiSettings.ollamaUrl}
+                  variant="outline"
+                >
+                  {loadingModels ? 'Loading...' : 'Load Models'}
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={aiSettings.useCpu}
+                  onChange={(e) => setAiSettings({ ...aiSettings, useCpu: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="text-sm font-medium">Force CPU mode (use if you get CUDA/GPU errors)</span>
+              </label>
+            </div>
+
+            {aiMessage && (
+              <div className={`p-3 rounded-md text-sm ${
+                aiMessage.includes('success') || aiMessage.includes('Found')
+                  ? 'bg-green-500/10 text-green-600'
+                  : 'bg-red-500/10 text-red-600'
+              }`}>
+                {aiMessage}
+              </div>
+            )}
+
+            <Button onClick={handleSaveAiSettings} className="w-full">
+              Save AI Settings
+            </Button>
           </CardContent>
         </Card>
 

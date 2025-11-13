@@ -153,3 +153,22 @@ The `filterEventsByOwner()` function identifies shared events by:
 - Option to show shared events in a middle column
 - Toggle to show/hide shared events in side-by-side view
 - Different visual indicators for different event types
+
+## AI Assistant
+
+### Overview
+The AI Assistant is an intelligent calendar assistant powered by Ollama that allows users to interact with their calendar using natural language. Users can ask questions about their schedule, view upcoming events, and create new events through conversational chat.
+
+### Features
+- **Natural Language Queries**: Ask questions about your calendar in plain English
+- **Schedule Viewing**: Query upcoming events, today's schedule, or events for specific dates
+- **Event Creation**: Create new calendar events through conversation
+- **Date Awareness**: The AI understands current date/time and distinguishes between past and future events
+- **Calendar Integration**: Fully integrated with your existing calendars and events
+
+### Usage
+1. Configure Ollama settings in Settings → AI Assistant
+2. Click the chat button in the bottom-right corner of the calendar page
+3. Ask questions or create events using natural language
+
+For detailed setup and usage instructions, see [AI Assistant Documentation](./AI_ASSISTANT.md).
