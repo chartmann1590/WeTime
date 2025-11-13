@@ -589,6 +589,146 @@ Send a test email using current SMTP settings.
 
 ---
 
+## Notifications
+
+#### GET `/api/notifications`
+
+List user's notifications.
+
+**Query Parameters:**
+- `read` (optional): Filter by read status (`true` or `false`)
+- `limit` (optional): Maximum number of notifications (default: 50)
+
+**Response:**
+```json
+{
+  "notifications": [
+    {
+      "id": "clx...",
+      "eventId": "cly...",
+      "title": "Reminder: Team Meeting",
+      "message": "Event starts 15 minutes from now",
+      "read": false,
+      "createdAt": "2024-01-15T14:00:00Z"
+    }
+  ],
+  "unreadCount": 3
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `401`: Unauthorized
+
+---
+
+#### PATCH `/api/notifications`
+
+Mark a notification as read or unread.
+
+**Request Body:**
+```json
+{
+  "id": "clx...",
+  "read": true
+}
+```
+
+**Response:**
+```json
+{
+  "notification": {
+    "id": "clx...",
+    "eventId": "cly...",
+    "title": "Reminder: Team Meeting",
+    "message": "Event starts 15 minutes from now",
+    "read": true,
+    "createdAt": "2024-01-15T14:00:00Z"
+  }
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `400`: Invalid request (missing id or read field)
+- `401`: Unauthorized
+- `404`: Notification not found
+
+---
+
+#### DELETE `/api/notifications?id=<notificationId>`
+
+Delete a notification.
+
+**Response:**
+```json
+{
+  "ok": true
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `400`: Notification ID required
+- `401`: Unauthorized
+- `404`: Notification not found
+
+---
+
+## Settings
+
+#### GET `/api/settings/notifications`
+
+Get user's notification preferences.
+
+**Response:**
+```json
+{
+  "reminderMinutesBefore": 15,
+  "notifyEmail": true,
+  "notifyWeb": true
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `401`: Unauthorized
+
+**Note:** Returns default values if no preferences exist.
+
+---
+
+#### POST `/api/settings/notifications`
+
+Update user's notification preferences.
+
+**Request Body:**
+```json
+{
+  "reminderMinutesBefore": 30,  // null to disable reminders
+  "notifyEmail": true,
+  "notifyWeb": true
+}
+```
+
+**Response:**
+```json
+{
+  "reminderMinutesBefore": 30,
+  "notifyEmail": true,
+  "notifyWeb": true
+}
+```
+
+**Status Codes:**
+- `200`: Success
+- `400`: Validation error
+- `401`: Unauthorized
+
+**Note:** `reminderMinutesBefore` must be a positive integer or null. Setting it to null disables reminders.
+
+---
+
 ## AI Assistant
 
 #### GET `/api/ai-assistant/settings`
@@ -744,7 +884,7 @@ x-internal-cron-token: <INTERNAL_CRON_TOKEN>
 
 #### POST `/api/internal/cron/send-reminders`
 
-Send email reminders for events starting in the next 15 minutes.
+Send email and web notifications for events based on user reminder preferences.
 
 **Headers:**
 ```
@@ -754,9 +894,18 @@ x-internal-cron-token: <INTERNAL_CRON_TOKEN>
 **Response:**
 ```json
 {
-  "sent": 3
+  "emailsSent": 2,
+  "webNotificationsCreated": 3,
+  "total": 5
 }
 ```
+
+**Note:** This endpoint:
+- Checks all users with notification preferences enabled
+- Finds events that should trigger reminders based on configured reminder times
+- Sends email notifications if `notifyEmail` is enabled and SMTP is configured
+- Creates web notifications if `notifyWeb` is enabled
+- Prevents duplicate reminders using the `EventReminder` table
 
 ---
 

@@ -47,6 +47,32 @@ WeTime uses PostgreSQL 16 with Prisma ORM for database management. The schema is
             ┌──────────────────┐
             │AiAssistantSetting│
             └──────────────────┘
+
+┌─────────┐
+│  User   │───1:1───┐
+└─────────┘         │
+                    ▼
+            ┌────────────────────┐
+            │NotificationPreference│
+            └────────────────────┘
+
+┌─────────┐         ┌──────────────┐
+│  User   │───1:N───┤ Notification │
+└─────────┘         └──────┬───────┘
+                           │
+                           │
+                    ┌──────▼──────┐
+                    │    Event    │
+                    └─────────────┘
+
+┌─────────┐         ┌──────────────┐
+│  Event  │───1:N───┤EventReminder │
+└─────────┘         └──────┬───────┘
+                           │
+                           │
+                    ┌──────▼──────┐
+                    │    User     │
+                    └─────────────┘
 ```
 
 ## Models
@@ -75,6 +101,9 @@ Represents a user account in the system.
 - `attendees`: One-to-many with Attendee (RSVPs)
 - `smtpSetting`: One-to-one with SmtpSetting
 - `aiAssistantSetting`: One-to-one with AiAssistantSetting
+- `notificationPreference`: One-to-one with NotificationPreference
+- `notifications`: One-to-many with Notification
+- `eventReminders`: One-to-many with EventReminder
 
 **Indexes:**
 - Unique index on `email`
@@ -355,6 +384,111 @@ Stores AI assistant (Ollama) configuration per user.
 
 ---
 
+### NotificationPreference
+
+Stores user notification preferences and settings.
+
+**Fields:**
+- `id` (String, Primary Key): Unique identifier (CUID)
+- `userId` (String, Unique): Foreign key to User
+- `reminderMinutesBefore` (Int?, Optional): Minutes before event to send reminder (null = disabled)
+- `notifyEmail` (Boolean): Whether to send email notifications (default: true)
+- `notifyWeb` (Boolean): Whether to create web notifications (default: true)
+- `updatedAt` (DateTime): Last update timestamp
+- `createdAt` (DateTime): Creation timestamp
+
+**Relations:**
+- `user`: One-to-one with User
+
+**Indexes:**
+- Unique index on `userId`
+
+**Example:**
+```typescript
+{
+  id: "cld4444444444",
+  userId: "clx1234567890",
+  reminderMinutesBefore: 15,
+  notifyEmail: true,
+  notifyWeb: true,
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2024-01-01T00:00:00Z"
+}
+```
+
+---
+
+### Notification
+
+Represents a web notification for a user.
+
+**Fields:**
+- `id` (String, Primary Key): Unique identifier (CUID)
+- `userId` (String): Foreign key to User
+- `eventId` (String?, Optional): Foreign key to Event (if notification is event-related)
+- `title` (String): Notification title
+- `message` (String): Notification message
+- `read` (Boolean): Whether notification has been read (default: false)
+- `createdAt` (DateTime): Notification creation timestamp
+
+**Relations:**
+- `user`: Many-to-one with User
+- `event`: Optional many-to-one with Event
+
+**Indexes:**
+- Index on `userId` (for user queries)
+- Index on `eventId` (for event-related queries)
+
+**Example:**
+```typescript
+{
+  id: "cle5555555555",
+  userId: "clx1234567890",
+  eventId: "clx9999999999",
+  title: "Reminder: Team Meeting",
+  message: "Event starts 15 minutes from now",
+  read: false,
+  createdAt: "2024-01-15T13:45:00Z"
+}
+```
+
+---
+
+### EventReminder
+
+Tracks sent reminders to prevent duplicate notifications.
+
+**Fields:**
+- `id` (String, Primary Key): Unique identifier (CUID)
+- `eventId` (String): Foreign key to Event
+- `userId` (String): Foreign key to User
+- `reminderMinutes` (Int): Minutes before event the reminder was sent
+- `sentAt` (DateTime): When reminder was sent (default: now)
+
+**Relations:**
+- `event`: Many-to-one with Event
+- `user`: Many-to-one with User
+
+**Indexes:**
+- Unique constraint on `(eventId, userId, reminderMinutes)` (prevents duplicates)
+- Index on `userId` (for user queries)
+- Index on `eventId` (for event queries)
+
+**Example:**
+```typescript
+{
+  id: "clf6666666666",
+  eventId: "clx9999999999",
+  userId: "clx1234567890",
+  reminderMinutes: 15,
+  sentAt: "2024-01-15T13:45:00Z"
+}
+```
+
+**Purpose:** Prevents the same reminder from being sent multiple times for the same event/user/reminder-time combination.
+
+---
+
 ## Enums
 
 ### CalendarType
@@ -377,9 +511,12 @@ enum CalendarType {
 - User → Calendar (via `ownerId`)
 - User → Event (via `createdById`)
 - User → Attendee
+- User → Notification
+- User → EventReminder
 - Couple → User (max 2)
 - Couple → Calendar (via `coupleId`)
 - Calendar → Event
+- Event → EventReminder
 
 ### One-to-One
 
@@ -387,6 +524,7 @@ enum CalendarType {
 - Couple → Calendar (via `sharedCalendarId`)
 - User → SmtpSetting
 - User → AiAssistantSetting
+- User → NotificationPreference
 
 ---
 
@@ -400,6 +538,9 @@ The following cascading delete behaviors are configured:
   - Deletes attendees (Cascade)
   - Deletes SMTP settings (Cascade)
   - Deletes AI assistant settings (Cascade)
+  - Deletes notification preferences (Cascade)
+  - Deletes notifications (Cascade)
+  - Deletes event reminders (Cascade)
   - Sets `coupleId` to null (SetNull)
 
 - **Calendar deletion**:
@@ -407,6 +548,7 @@ The following cascading delete behaviors are configured:
 
 - **Event deletion**:
   - Deletes all attendees (Cascade)
+  - Deletes all event reminders (Cascade)
 
 - **Couple deletion**:
   - Sets `coupleId` to null on users (SetNull)
@@ -543,7 +685,6 @@ Potential additions:
 - **EventSeries**: Separate table for recurring event series
 - **EventInstance**: Individual occurrences of recurring events
 - **CalendarSubscription**: Track external calendar subscriptions
-- **Notification**: Store notification preferences and history
 - **AuditLog**: Track all data changes for compliance
 
 

@@ -85,6 +85,7 @@ apps/frontend/
 - `WeekView`: 7-day week grid view
 - `MonthView`: Full month calendar grid
 - `EventEditor`: Modal for creating/editing events
+- `Notifications`: Notification bell icon and dropdown
 
 ### 2. Backend (`apps/backend`)
 
@@ -115,7 +116,8 @@ apps/backend/src/app/api/
 ├── calendars/        # Calendar CRUD operations
 ├── events/           # Event CRUD operations
 ├── user/             # User profile management
-├── settings/         # User settings (SMTP)
+├── settings/         # User settings (SMTP, notifications)
+├── notifications/    # Notification management
 ├── internal/         # Internal cron endpoints
 └── admin/            # Admin-only endpoints
 ```
@@ -136,7 +138,7 @@ apps/backend/src/app/api/
 
 **Scheduled Jobs:**
 - **ICS Refresh** (every 15 minutes): Fetches and updates external calendar feeds
-- **Email Reminders** (every minute): Sends email notifications for upcoming events
+- **Send Reminders** (every minute): Sends email and web notifications for upcoming events based on user preferences
 
 **Job Implementation:**
 - Jobs call backend API endpoints via HTTP
@@ -156,6 +158,9 @@ apps/backend/src/app/api/
 - **Event**: Calendar events with recurrence support
 - **Attendee**: RSVP tracking for events
 - **SmtpSetting**: Encrypted email configuration per user
+- **Notification**: Web notifications for event reminders
+- **NotificationPreference**: User notification preferences and settings
+- **EventReminder**: Tracks sent reminders to prevent duplicates
 
 See [DATABASE.md](./DATABASE.md) for detailed schema documentation.
 
@@ -197,19 +202,22 @@ See [DATABASE.md](./DATABASE.md) for detailed schema documentation.
 5. Returns summary of synced calendars
 ```
 
-### Email Reminder Flow
+### Notification Reminder Flow
 
 ```
 1. Worker cron job triggers (every minute)
 2. Worker calls POST /api/internal/cron/send-reminders
-3. Backend queries events starting in next 15 minutes
-4. For each event:
-   a. Determines recipients (owner or couple members)
-   b. Checks if user has notifyEmail enabled
-   c. Loads user's SMTP settings
-   d. Decrypts SMTP password
-   e. Sends email via nodemailer
-5. Returns count of sent emails
+3. Backend queries users with notification preferences enabled
+4. For each user:
+   a. Gets user's reminder time preference
+   b. Finds events in reminder window (based on preference)
+   c. For each event:
+      - Checks if reminder already sent (EventReminder table)
+      - Calculates if reminder should be sent now
+      - If email enabled: sends email via nodemailer
+      - If web enabled: creates Notification record
+      - Records reminder in EventReminder table
+5. Returns count of emails sent and web notifications created
 ```
 
 ## Network Architecture

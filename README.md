@@ -11,7 +11,9 @@ A beautiful, mobile-first PWA for couples to manage shared calendars, sync exter
 - 🔗 **External Calendars**: Sync public iCal URLs (no OAuth required)
 - 📤 **ICS Import**: Upload `.ics` files to import events
 - 🔄 **Auto-Refresh**: External calendars refresh every 15 minutes
+- 🔔 **Notifications**: Email and web notifications for event reminders
 - 📧 **Email Reminders**: Configurable SMTP settings per user
+- ⚙️ **Notification Preferences**: Customizable reminder times and channels
 - 🎨 **Beautiful UI**: Mobile-first design with light/dark themes
 - 📱 **PWA**: Installable on iOS/Android with offline support
 - 🔒 **Secure**: Self-signed SSL, CSRF protection, rate limiting
@@ -190,6 +192,13 @@ pnpm dev  # Runs frontend (3000) and backend (3001) in parallel
 - `GET /api/settings/smtp` - Get SMTP settings
 - `POST /api/settings/smtp` - Save SMTP settings
 - `POST /api/settings/smtp/test` - Send test email
+- `GET /api/settings/notifications` - Get notification preferences
+- `POST /api/settings/notifications` - Update notification preferences
+
+### Notifications
+- `GET /api/notifications` - List notifications (with read filter and limit)
+- `PATCH /api/notifications` - Mark notification as read/unread
+- `DELETE /api/notifications?id=` - Delete notification
 
 ### Internal (Worker)
 - `POST /api/internal/cron/refresh-ics` - Refresh all external calendars
@@ -205,6 +214,9 @@ See `prisma/schema.prisma` for the complete schema. Key models:
 - **Event**: Title, dates (UTC), recurrence (RRULE), visibility
 - **Attendee**: RSVP status for shared events
 - **SmtpSetting**: Encrypted per-user email configuration
+- **Notification**: Web notifications for event reminders
+- **NotificationPreference**: User notification preferences and settings
+- **EventReminder**: Tracks sent reminders to prevent duplicates
 
 ## Security
 
@@ -251,6 +263,7 @@ Comprehensive documentation is available in the [`docs/`](docs/) directory:
 - **[Development Guide](docs/DEVELOPMENT.md)** - Local development setup and workflow
 - **[Security Documentation](docs/SECURITY.md)** - Security measures and best practices
 - **[Administrator Guide](docs/ADMIN.md)** - Admin user creation and panel usage
+- **[Notifications Guide](docs/NOTIFICATIONS.md)** - Notification system setup and usage
 
 ## License
 

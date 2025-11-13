@@ -172,3 +172,27 @@ The AI Assistant is an intelligent calendar assistant powered by Ollama that all
 3. Ask questions or create events using natural language
 
 For detailed setup and usage instructions, see [AI Assistant Documentation](./AI_ASSISTANT.md).
+
+## Notifications
+
+### Overview
+The notification system provides email and web notifications for event reminders, helping couples stay informed about upcoming events. Users can configure reminder times, choose notification channels, and manage notifications through an intuitive notification center.
+
+### Features
+- **Email Notifications**: Send email reminders via configurable SMTP settings
+- **Web Notifications**: In-app notification center with real-time updates
+- **Customizable Reminders**: Set reminder times (e.g., 15 minutes, 1 hour, 1 day before events)
+- **Notification Preferences**: Toggle email and web notifications independently
+- **Event-Specific Reminders**: Override default reminder times per event
+- **Unread Badge**: Visual indicator showing unread notification count
+- **Auto-Polling**: Notifications automatically refresh every 30 seconds
+
+### Usage
+1. Configure notification preferences in Settings → Notifications
+2. Set up SMTP settings in Settings → SMTP Settings (for email notifications)
+3. Set reminder time (minutes before event) or disable reminders
+4. Toggle email and web notifications on/off
+5. View notifications via the bell icon in the header
+6. Mark notifications as read or delete them from the notification dropdown
+
+For detailed setup and usage instructions, see [Notifications Documentation](./NOTIFICATIONS.md).
