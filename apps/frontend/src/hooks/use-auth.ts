@@ -9,9 +9,15 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Try to get user from session
-    api.calendars.list()
-      .then(() => setUser({ id: 'temp', email: 'temp', name: 'temp' })) // If this succeeds, user is logged in
+    // Try to get user from session by fetching profile
+    api.user.getProfile()
+      .then((data) => {
+        if (data.user) {
+          setUser({ id: data.user.id, email: data.user.email, name: data.user.name })
+        } else {
+          setUser(null)
+        }
+      })
       .catch(() => setUser(null))
       .finally(() => setLoading(false))
   }, [])

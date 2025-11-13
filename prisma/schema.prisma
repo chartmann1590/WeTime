@@ -16,7 +16,6 @@ model User {
   timeZone      String   @default("America/New_York")
   coupleId      String?
   couple        Couple?  @relation(fields: [coupleId], references: [id], onDelete: SetNull)
-  notifyEmail   Boolean  @default(true)
   isAdmin       Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -25,6 +24,8 @@ model User {
   attendees     Attendee[]
   smtpSetting   SmtpSetting?
   aiAssistantSetting AiAssistantSetting?
+  notificationPreference NotificationPreference?
+  notifications Notification[]
 }
 
 model Couple {
@@ -83,8 +84,10 @@ model Event {
   source        String   @default("local") // local|external|imported
   externalUid   String?  // stable UID for ICS de-dup
   originalTz    String?  // for expansion
+  reminderMinutesBefore Int? // Event-specific reminder time (null = use user default)
   updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
+  reminders     EventReminder[]
 }
 
 model Attendee {
@@ -119,4 +122,39 @@ model AiAssistantSetting {
   updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NotificationPreference {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminderMinutesBefore Int?    // null = disabled
+  notifyEmail          Boolean  @default(true)
+  notifyWeb            Boolean  @default(true)
+  updatedAt            DateTime @updatedAt
+  createdAt            DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   String?
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model EventReminder {
+  id               String   @id @default(cuid())
+  eventId          String
+  event            Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId           String
+  reminderMinutes  Int
+  sentAt           DateTime @default(now())
+  
+  @@unique([eventId, userId, reminderMinutes])
+  @@index([userId])
+  @@index([eventId])
 }

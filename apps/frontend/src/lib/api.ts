@@ -11,6 +11,40 @@ async function fetchApi(endpoint: string, options?: RequestInit) {
   })
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Unknown error' }))
+    
+    // Handle Zod validation errors (flattened structure)
+    if (error.error && typeof error.error === 'object') {
+      const zodError = error.error as { fieldErrors?: Record<string, string[]>, formErrors?: string[] }
+      const messages: string[] = []
+      
+      if (zodError.fieldErrors) {
+        Object.entries(zodError.fieldErrors).forEach(([field, errors]) => {
+          if (errors && errors.length > 0) {
+            messages.push(`${field}: ${errors[0]}`)
+          }
+        })
+      }
+      
+      if (zodError.formErrors && zodError.formErrors.length > 0) {
+        messages.push(...zodError.formErrors)
+      }
+      
+      if (messages.length > 0) {
+        throw new Error(messages.join(', '))
+      }
+    }
+    
+    // Handle simple string errors
+    if (typeof error.error === 'string') {
+      // Map common error codes to user-friendly messages
+      const errorMessages: Record<string, string> = {
+        'email_taken': 'This email is already registered',
+        'invalid_credentials': 'Invalid email or password',
+        'rate_limited': 'Too many requests. Please try again later.',
+      }
+      throw new Error(errorMessages[error.error] || error.error)
+    }
+    
     throw new Error(error.error || 'Request failed')
   }
   return res.json()
@@ -68,6 +102,20 @@ export const api = {
     getSmtp: () => fetchApi('/settings/smtp'),
     saveSmtp: (data: any) => fetchApi('/settings/smtp', { method: 'POST', body: JSON.stringify(data) }),
     testSmtp: () => fetchApi('/settings/smtp/test', { method: 'POST' }),
+    getNotifications: () => fetchApi('/settings/notifications'),
+    updateNotifications: (data: { reminderMinutesBefore?: number | null; notifyEmail?: boolean; notifyWeb?: boolean }) =>
+      fetchApi('/settings/notifications', { method: 'POST', body: JSON.stringify(data) }),
+  },
+  notifications: {
+    list: (read?: boolean, limit?: number) => {
+      const params = new URLSearchParams()
+      if (read !== undefined) params.set('read', read.toString())
+      if (limit) params.set('limit', limit.toString())
+      return fetchApi(`/notifications?${params.toString()}`)
+    },
+    markRead: (id: string, read: boolean) =>
+      fetchApi('/notifications', { method: 'PATCH', body: JSON.stringify({ id, read }) }),
+    delete: (id: string) => fetchApi(`/notifications?id=${id}`, { method: 'DELETE' }),
   },
   aiAssistant: {
     getSettings: () => fetchApi('/ai-assistant/settings'),

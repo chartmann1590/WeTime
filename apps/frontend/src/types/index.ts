@@ -31,6 +31,7 @@ export interface Event {
   source: string
   externalUid?: string
   recurrenceInstance?: boolean
+  reminderMinutesBefore?: number | null
 }
 
 export interface User {

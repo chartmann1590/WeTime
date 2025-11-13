@@ -99,6 +99,7 @@ const postSchema = z.object({
   rrule: z.string().optional(),
   exdates: z.array(z.string()).optional(),
   visibility: z.enum(['owner', 'partner']).optional(),
+  reminderMinutesBefore: z.number().int().positive().nullable().optional(),
 });
 
 export async function POST(req: Request) {
@@ -121,6 +122,7 @@ export async function POST(req: Request) {
       rrule: data.rrule,
       exdates: data.exdates || [],
       visibility: data.visibility || 'owner',
+      reminderMinutesBefore: data.reminderMinutesBefore ?? null,
       createdById: user.id,
       source: 'local',
     },

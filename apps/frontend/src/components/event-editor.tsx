@@ -25,7 +25,22 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
   const [startTime, setStartTime] = useState('')
   const [endDate, setEndDate] = useState('')
   const [endTime, setEndTime] = useState('')
+  const [reminderMinutesBefore, setReminderMinutesBefore] = useState<number | null>(null)
+  const [useDefaultReminder, setUseDefaultReminder] = useState(true)
+  const [userDefaultReminder, setUserDefaultReminder] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    // Load user's default reminder preference
+    api.settings.getNotifications().then((data) => {
+      setUserDefaultReminder(data.reminderMinutesBefore)
+      if (data.reminderMinutesBefore !== null) {
+        setReminderMinutesBefore(data.reminderMinutesBefore)
+      }
+    }).catch(() => {
+      // Ignore errors
+    })
+  }, [])
 
   useEffect(() => {
     if (event) {
@@ -40,6 +55,10 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
       setStartTime(start.toTimeString().slice(0, 5))
       setEndDate(end.toISOString().slice(0, 10))
       setEndTime(end.toTimeString().slice(0, 5))
+      if (event.reminderMinutesBefore !== undefined) {
+        setReminderMinutesBefore(event.reminderMinutesBefore)
+        setUseDefaultReminder(event.reminderMinutesBefore === null)
+      }
     } else if (defaultDate) {
       const date = defaultDate.toISOString().slice(0, 10)
       setStartDate(date)
@@ -49,6 +68,7 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
       if (calendars.length > 0) {
         setCalendarId(calendars[0].id)
       }
+      setUseDefaultReminder(true)
     }
   }, [event, defaultDate, calendars])
 
@@ -60,6 +80,8 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
       const startsAtUtc = new Date(`${startDate}T${allDay ? '00:00' : startTime}:00`).toISOString()
       const endsAtUtc = new Date(`${endDate}T${allDay ? '23:59' : endTime}:00`).toISOString()
 
+      const reminderValue = useDefaultReminder ? null : reminderMinutesBefore
+      
       if (event) {
         await api.events.update(event.id, {
           title,
@@ -68,6 +90,7 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
           startsAtUtc,
           endsAtUtc,
           allDay,
+          reminderMinutesBefore: reminderValue,
         })
       } else {
         await api.events.create({
@@ -78,6 +101,7 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
           startsAtUtc,
           endsAtUtc,
           allDay,
+          reminderMinutesBefore: reminderValue,
         })
       }
       onSave()
@@ -176,6 +200,63 @@ export function EventEditor({ open, onClose, event, calendars, onSave, defaultDa
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                 />
+              )}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t">
+            <label className="text-sm font-medium mb-2 block">Reminder</label>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={useDefaultReminder}
+                  onChange={(e) => {
+                    setUseDefaultReminder(e.target.checked)
+                    if (e.target.checked && userDefaultReminder !== null) {
+                      setReminderMinutesBefore(userDefaultReminder)
+                    }
+                  }}
+                  className="rounded"
+                />
+                <span className="text-sm">
+                  Use default reminder ({userDefaultReminder !== null ? `${userDefaultReminder} minutes` : 'disabled'})
+                </span>
+              </label>
+              
+              {!useDefaultReminder && (
+                <div className="ml-6 space-y-2">
+                  <div>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={reminderMinutesBefore || ''}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value)
+                        if (!isNaN(val) && val > 0) {
+                          setReminderMinutesBefore(val)
+                        } else if (e.target.value === '') {
+                          setReminderMinutesBefore(null)
+                        }
+                      }}
+                      placeholder="Minutes before event"
+                      className="mb-2"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[15, 30, 60, 120, 1440, 10080].map((mins) => (
+                      <Button
+                        key={mins}
+                        type="button"
+                        variant={reminderMinutesBefore === mins ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setReminderMinutesBefore(mins)}
+                      >
+                        {mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.floor(mins / 60)}h` : `${Math.floor(mins / 1440)}d`}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>

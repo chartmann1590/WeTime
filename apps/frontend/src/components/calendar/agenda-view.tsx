@@ -10,6 +10,7 @@ interface AgendaViewProps {
   partnerId?: string | null
   currentUserName?: string
   partnerName?: string | null
+  onEventClick?: (event: Event) => void
 }
 
 export function AgendaView({ 
@@ -19,14 +20,15 @@ export function AgendaView({
   currentUserId = '',
   partnerId = null,
   currentUserName = '',
-  partnerName = null
+  partnerName = null,
+  onEventClick
 }: AgendaViewProps) {
   // Filter events for side-by-side mode
   const { currentUserEvents, partnerEvents, sharedEvents } = sideBySide && currentUserId
     ? filterEventsByOwner(events, currentUserId, partnerId)
     : { currentUserEvents: events, partnerEvents: [], sharedEvents: [] }
 
-  const renderAgendaColumn = (columnEvents: Event[], userName: string) => {
+  const renderAgendaColumn = (columnEvents: Event[], userName: string, onEventClick?: (event: Event) => void) => {
     const sorted = [...columnEvents].sort((a, b) => new Date(a.startsAtUtc).getTime() - new Date(b.startsAtUtc).getTime())
     const grouped = sorted.reduce((acc, event) => {
       const date = new Date(event.startsAtUtc)
@@ -60,7 +62,8 @@ export function AgendaView({
                     return (
                       <div
                         key={event.id}
-                        className="p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+                        onClick={() => onEventClick?.(event)}
+                        className="p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors cursor-pointer"
                         style={{ 
                           borderLeftColor: event.calendar?.color || '#3b82f6',
                           borderStyle: isShared ? 'dashed' : 'solid',
@@ -109,12 +112,12 @@ export function AgendaView({
     
     return (
       <div className="flex-1 overflow-hidden flex">
-        {renderAgendaColumn(userEventsWithShared, currentUserName || 'You')}
-        {renderAgendaColumn(partnerEventsWithShared, partnerName)}
+        {renderAgendaColumn(userEventsWithShared, currentUserName || 'You', onEventClick)}
+        {renderAgendaColumn(partnerEventsWithShared, partnerName, onEventClick)}
       </div>
     )
   }
 
-  return renderAgendaColumn(events, '')
+  return renderAgendaColumn(events, '', onEventClick)
 }
 

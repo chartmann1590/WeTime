@@ -20,6 +20,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     rrule: z.string().optional(),
     exdates: z.array(z.string()).optional(),
     visibility: z.enum(['owner', 'partner']).optional(),
+    reminderMinutesBefore: z.number().int().positive().nullable().optional(),
   });
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
@@ -36,6 +37,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       ...('rrule' in d ? { rrule: d.rrule } : {}),
       ...('exdates' in d ? { exdates: d.exdates } : {}),
       ...('visibility' in d ? { visibility: d.visibility } : {}),
+      ...('reminderMinutesBefore' in d ? { reminderMinutesBefore: d.reminderMinutesBefore ?? null } : {}),
     },
   });
   return NextResponse.json({ event: updated });

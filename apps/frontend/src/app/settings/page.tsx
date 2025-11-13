@@ -44,11 +44,20 @@ export default function SettingsPage() {
   const [loadingModels, setLoadingModels] = useState(false)
   const [aiMessage, setAiMessage] = useState<string | null>(null)
 
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    reminderMinutesBefore: null as number | null,
+    notifyEmail: true,
+    notifyWeb: true,
+  })
+  const [notificationPrefsLoading, setNotificationPrefsLoading] = useState(true)
+  const [notificationPrefsMessage, setNotificationPrefsMessage] = useState<string | null>(null)
+
   useEffect(() => {
     loadProfile()
     loadCouple()
     loadSmtp()
     loadAiSettings()
+    loadNotificationPrefs()
   }, [])
 
   const loadProfile = async () => {
@@ -238,6 +247,40 @@ export default function SettingsPage() {
     }
   }
 
+  const loadNotificationPrefs = async () => {
+    try {
+      const data = await api.settings.getNotifications()
+      setNotificationPrefs({
+        reminderMinutesBefore: data.reminderMinutesBefore,
+        notifyEmail: data.notifyEmail,
+        notifyWeb: data.notifyWeb,
+      })
+    } catch (error) {
+      console.error('Failed to load notification preferences:', error)
+    } finally {
+      setNotificationPrefsLoading(false)
+    }
+  }
+
+  const handleSaveNotificationPrefs = async () => {
+    setNotificationPrefsMessage(null)
+    try {
+      await api.settings.updateNotifications(notificationPrefs)
+      setNotificationPrefsMessage('Notification preferences saved successfully!')
+      setTimeout(() => setNotificationPrefsMessage(null), 3000)
+    } catch (error: any) {
+      setNotificationPrefsMessage(error.message || 'Failed to save preferences')
+      setTimeout(() => setNotificationPrefsMessage(null), 3000)
+    }
+  }
+
+  const formatReminderTime = (minutes: number | null) => {
+    if (minutes === null) return 'Disabled'
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+    if (minutes < 1440) return `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) !== 1 ? 's' : ''}`
+    return `${Math.floor(minutes / 1440)} day${Math.floor(minutes / 1440) !== 1 ? 's' : ''}`
+  }
+
   return (
     <div className="min-h-dvh bg-background p-4 max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
@@ -260,6 +303,122 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <ThemeSelect />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Notification Preferences</CardTitle>
+            <CardDescription>Configure when and how you receive event reminders</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {notificationPrefsLoading ? (
+              <div className="text-sm text-muted-foreground">Loading...</div>
+            ) : (
+              <>
+                <div>
+                  <label className="flex items-center space-x-2 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={notificationPrefs.reminderMinutesBefore !== null}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNotificationPrefs({ ...notificationPrefs, reminderMinutesBefore: 15 })
+                        } else {
+                          setNotificationPrefs({ ...notificationPrefs, reminderMinutesBefore: null })
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <span className="text-sm font-medium">Enable reminders</span>
+                  </label>
+                  <p className="text-xs text-muted-foreground ml-6">
+                    When enabled, you'll receive reminders before events start
+                  </p>
+                </div>
+
+                {notificationPrefs.reminderMinutesBefore !== null && (
+                  <>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Reminder time (minutes before event)</label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={notificationPrefs.reminderMinutesBefore || ''}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value)
+                          if (!isNaN(val) && val > 0) {
+                            setNotificationPrefs({ ...notificationPrefs, reminderMinutesBefore: val })
+                          }
+                        }}
+                        placeholder="15"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Current: {formatReminderTime(notificationPrefs.reminderMinutesBefore)} before event
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {[15, 30, 60, 120, 1440, 10080].map((mins) => (
+                          <Button
+                            key={mins}
+                            variant={notificationPrefs.reminderMinutesBefore === mins ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setNotificationPrefs({ ...notificationPrefs, reminderMinutesBefore: mins })}
+                          >
+                            {formatReminderTime(mins)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t">
+                      <div>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={notificationPrefs.notifyEmail}
+                            onChange={(e) => setNotificationPrefs({ ...notificationPrefs, notifyEmail: e.target.checked })}
+                            className="rounded"
+                          />
+                          <span className="text-sm font-medium">Email notifications</span>
+                        </label>
+                        <p className="text-xs text-muted-foreground ml-6">
+                          Receive reminders via email (requires SMTP configuration)
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={notificationPrefs.notifyWeb}
+                            onChange={(e) => setNotificationPrefs({ ...notificationPrefs, notifyWeb: e.target.checked })}
+                            className="rounded"
+                          />
+                          <span className="text-sm font-medium">Web notifications</span>
+                        </label>
+                        <p className="text-xs text-muted-foreground ml-6">
+                          Receive in-app notifications
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {notificationPrefsMessage && (
+                  <div className={`p-3 rounded-md text-sm ${
+                    notificationPrefsMessage.includes('success')
+                      ? 'bg-green-500/10 text-green-600'
+                      : 'bg-red-500/10 text-red-600'
+                  }`}>
+                    {notificationPrefsMessage}
+                  </div>
+                )}
+
+                <Button onClick={handleSaveNotificationPrefs} className="w-full">
+                  Save Notification Preferences
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
 

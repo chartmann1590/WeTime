@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { addDays, addWeeks, addMonths, getWeekStart, getMonthStart } from '@/lib/utils'
 import { Calendar, Settings, Plus, ChevronLeft, ChevronRight, LogOut, Columns } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { Notifications } from '@/components/notifications'
 import type { Event, Calendar as CalendarType } from '@/types'
 
 type View = 'agenda' | 'day' | '3day' | 'week' | 'month' | 'shared'
@@ -253,6 +254,7 @@ export default function Home() {
               </Button>
             )}
             <ThemeToggle />
+            <Notifications />
             <Button variant="ghost" size="icon" onClick={() => router.push('/settings')}>
               <Settings className="h-5 w-5" />
             </Button>
@@ -295,6 +297,7 @@ export default function Home() {
             partnerId={partner?.id || null}
             currentUserName={currentUser?.name || ''}
             partnerName={partner?.name || null}
+            onEventClick={handleEventClick}
           />
         )}
         {view === 'day' && (

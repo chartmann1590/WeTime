@@ -10,7 +10,6 @@ const updateSchema = z.object({
   name: z.string().min(1).optional(),
   isAdmin: z.boolean().optional(),
   timeZone: z.string().optional(),
-  notifyEmail: z.boolean().optional(),
   password: z.string().min(8).optional(),
 });
 
@@ -55,7 +54,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         avatarUrl: true,
         timeZone: true,
         coupleId: true,
-        notifyEmail: true,
         isAdmin: true,
         createdAt: true,
         updatedAt: true,
